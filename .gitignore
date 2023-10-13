@@ -1,1 +1,59 @@
-.vscode
+# Ignore system-generated files
+.DS_Store
+Thumbs.db
+
+# Ignore Composer dependencies
+/vendor/
+
+# Ignore logs and cache files
+/var/
+/log/
+/app/cache/
+
+# Ignore session files
+/app/sessions/
+
+# Ignore configuration files
+/.env
+/.env.local
+/config/packages/local.php
+/config/packages/local.php.dist
+/config/packages/*.php
+/config/packages/*/*.php
+
+# Ignore user-specific files
+/.phpunit.result.cache
+/phpunit.xml
+
+# Ignore database configuration
+/.env.local.php
+
+# Ignore build artifacts
+/node_modules/
+/public/build/
+
+# Ignore user uploads
+/public/img/
+
+# Ignore IDE-specific files and directories
+/.idea/
+.vscode/
+
+# Ignore deployment-specific files
+/deploy/
+/deploy.php
+/deployer.yaml
+
+# Ignore temporary and generated files
+/var/cache/
+/var/logs/
+/var/sessions/
+/var/tmp/
+
+# Ignore OS-generated files
+Desktop.ini
+Thumbs.db
+
+# Ignore project-specific files
+.env.local.php
+/public/bundles.php
