@@ -1,14 +1,13 @@
 <?php
+/**
+ * Digunakan untuk mengupdate data akun seperti username dan full nama.
+ */
+
+ require "../../koneksi.php";
+
 header("Content-Type: application/json");
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // koneksi ke database
-        $conn = new mysqli("localhost", "root", "", "arenafinder");
-
-        // jika koneksi gagal
-        if ($conn->connect_error) {
-            die("Koneksi gagal: " . $conn->connect_error);
-        }
 
         // post request
         $email = $_POST['email'];
@@ -18,8 +17,10 @@ header("Content-Type: application/json");
         // get data user
         $sql = "UPDATE users SET username = '$username', full_name = '$full_name' WHERE email = '$email'";
         $result = $conn->query($sql);
-
+        
+        // jika data berhasil diupdate
         if($result === true){
+            // mendapatkan data baru
             $sql = "SELECT * FROM users WHERE email = '$email'";
             $result = $conn->query($sql);
 
@@ -28,16 +29,16 @@ header("Content-Type: application/json");
             }else{
                 $response = array("status"=>"error", "message"=>"Edit akun berhasil tetapi data gagal didapatkan");
             }
-    
         }else{
             $response = array("status"=>"error", "message"=>"Edit akun gagal diupdate");
         }
 
         // close koneksi
         $conn->close();
-
-        echo json_encode($response);
     }else{
-        echo 'error';
+        $response = array("status"=>"error", "message"=>"not post method");
     }
+
+    // show response
+    echo json_encode($response);
 ?>

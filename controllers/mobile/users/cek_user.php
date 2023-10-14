@@ -24,10 +24,10 @@ header("Content-Type: application/json");
 
         // close koneksi
         $conn->close();
-
     }else{
         $response = array("status"=>"error", "message"=>"not get method");
     }
 
+    // show response
     echo json_encode($response);
 ?>

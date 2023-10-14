@@ -1,14 +1,13 @@
 <?php
+/**
+ * Digunakan untuk register manual.
+ */
+
+ require "../../koneksi.php";
+
 header("Content-Type: application/json");
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // koneksi ke database
-        $conn = new mysqli("localhost", "root", "", "arenafinder");
-
-        // jika koneksi gagal
-        if ($conn->connect_error) {
-            die("Koneksi gagal: " . $conn->connect_error);
-        }
 
         // post request
         $username = $_POST['username'];
@@ -22,6 +21,7 @@ header("Content-Type: application/json");
         $sql = "INSERT INTO users VALUES (null, '$username', '$email', '$full_name', '$epassword', 'END USER', 0, 'default.png')";
         $result = $conn->query($sql);
 
+        // jika register berhasil
         if($result === true){
             $response = array("status"=>"success", "message"=>"Register Success");
         }else{
@@ -33,6 +33,9 @@ header("Content-Type: application/json");
 
         echo json_encode($response);
     }else{
-        echo 'error';
+        $response = array("status"=>"error", "message"=>"not post method");
     }
+
+    // show response
+    echo json_encode($response);
 ?>

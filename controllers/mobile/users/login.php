@@ -1,14 +1,13 @@
 <?php
+/**
+ * Digunakan untuk login manual dengan menginputkan username/email dan password.
+ */
+
+ require "../../koneksi.php";
+
 header("Content-Type: application/json");
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // koneksi ke database
-        $conn = new mysqli("localhost", "root", "", "arenafinder");
-
-        // jika koneksi gagal
-        if ($conn->connect_error) {
-            die("Koneksi gagal: " . $conn->connect_error);
-        }
 
         // post request
         $username = $_POST['email'];
@@ -18,7 +17,7 @@ header("Content-Type: application/json");
         $sql = "SELECT * FROM users WHERE email = '$username' OR username = '$username' LIMIT 1";
         $result = $conn->query($sql);
 
-        // jika username exist
+        // jika username atau email exist
         if ($result->num_rows == 1) {
             $user = $result->fetch_assoc(); // get user data
             // jika password match
@@ -35,9 +34,10 @@ header("Content-Type: application/json");
 
         // close koneksi
         $conn->close();
-
-        echo json_encode($response);
     }else{
-        echo 'error';
+        $response = array("status"=>"error", "message"=>"not post method");
     }
+
+    // show response
+    echo json_encode($response);
 ?>

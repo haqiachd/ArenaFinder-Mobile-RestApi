@@ -1,14 +1,13 @@
 <?php
+/**
+ * Digunakan untuk mengupdate password dari users.
+ */
+
+ require "../../koneksi.php";
+
 header("Content-Type: application/json");
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // koneksi ke database
-        $conn = new mysqli("localhost", "root", "", "arenafinder");
-
-        // jika koneksi gagal
-        if ($conn->connect_error) {
-            die("Koneksi gagal: " . $conn->connect_error);
-        }
 
         // post request
         $email = $_POST['email'];
@@ -19,6 +18,7 @@ header("Content-Type: application/json");
         $sql = "UPDATE users SET password = '$epassword' WHERE email = '$email'";
         $result = $conn->query($sql);
 
+        // jika password berhasil terupdate
         if($result === true){
             $response = array("status"=>"success", "message"=>"Password berhasil diupdate");
         }else{
@@ -28,8 +28,10 @@ header("Content-Type: application/json");
         // close koneksi
         $conn->close();
 
-        echo json_encode($response);
     }else{
-        echo 'error';
+        $response = array("status"=>"error", "message"=>"method is not post");
     }
+
+    // show response
+    echo json_encode($response);
 ?>

@@ -1,15 +1,14 @@
 <?php
+/**
+ * Digunakan untuk register dengan google.
+ */
+
+ require "../../koneksi.php";
+
 header("Content-Type: application/json");
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // koneksi ke database
-        $conn = new mysqli("localhost", "root", "", "arenafinder");
-
-        // jika koneksi gagal
-        if ($conn->connect_error) {
-            die("Koneksi gagal: " . $conn->connect_error);
-        }
-
+ 
         // post request
         $username = $_POST['username'];
         $email = $_POST['email'];
@@ -22,10 +21,13 @@ header("Content-Type: application/json");
         $sql = "INSERT INTO users VALUES (null, '$username', '$email', '$full_name', '$epassword', 'END USER', 1, 'default.png')";
         $result = $conn->query($sql);
 
+        // jika data berhasil ditambahkan
         if($result === true){
+            // mendapatkan data
             $sql = "SELECT * FROM users WHERE email = '$email' LIMIT 1";
             $result = $conn->query($sql);
 
+            // jika data berhasil didapatkan
             if($result->num_rows == 1){
                 $response = array("status"=>"success", "message"=>"Register Success", "data"=>$result->fetch_assoc());
             }else{
@@ -38,8 +40,10 @@ header("Content-Type: application/json");
         // close koneksi
         $conn->close();
 
-        echo json_encode($response);
     }else{
-        echo 'error';
+        $response = array("status"=>"error", "message"=>"not post method");
     }
+
+    // show response
+    echo json_encode($response);
 ?>
