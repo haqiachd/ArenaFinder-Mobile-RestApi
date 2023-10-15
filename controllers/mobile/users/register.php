@@ -31,7 +31,6 @@ header("Content-Type: application/json");
         // close koneksi
         $conn->close();
 
-        echo json_encode($response);
     }else{
         $response = array("status"=>"error", "message"=>"not post method");
     }
