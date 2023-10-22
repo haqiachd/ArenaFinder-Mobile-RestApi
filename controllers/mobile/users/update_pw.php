@@ -4,6 +4,7 @@
  */
 
  require "../../koneksi.php";
+ require "Validator.php";
 
 header("Content-Type: application/json");
 
@@ -14,15 +15,23 @@ header("Content-Type: application/json");
         $password = $_POST['password'];
         $epassword = password_hash($password, PASSWORD_BCRYPT);
 
-        // get data user
-        $sql = "UPDATE users SET password = '$epassword' WHERE email = '$email'";
-        $result = $conn->query($sql);
+        // validasi data
+        $validator = new Validator();
+        $validPass = $validator->isValidPassword($password);
 
-        // jika password berhasil terupdate
-        if($result === true){
-            $response = array("status"=>"success", "message"=>"Password berhasil diupdate");
+        if ($validPass["status"] === "error") {
+            $response = $validPass;
         }else{
-            $response = array("status"=>"error", "message"=>"Password gagal diupdate");
+            // get data user
+            $sql = "UPDATE users SET password = '$epassword' WHERE email = '$email'";
+            $result = $conn->query($sql);
+
+            // jika password berhasil terupdate
+            if($result === true){
+                $response = array("status"=>"success", "message"=>"Password berhasil diupdate");
+            }else{
+                $response = array("status"=>"error", "message"=>"Password gagal diupdate");
+            }
         }
 
         // close koneksi
