@@ -4,6 +4,7 @@
  */
 
 require "../../koneksi.php";
+require "Validator.php";
 
 header("Content-Type: application/json");
 
@@ -12,14 +13,23 @@ header("Content-Type: application/json");
         // get request
         $email = $_GET['email'];
 
-        // eksekusi query
-        $sql = "SELECT email FROM users WHERE email = '$email' LIMIT 1";
+        // cek validasi data
+        $validator = new Validator();
+        $valid = $validator->isValidEmail($email);
 
-        // cek email terdaftar atau tidak
-        if($conn->query($sql)->num_rows == 1){
-            $response = array("status"=>"success", "message"=>"Email tersebut terdaftar");
+        // jika data email valid
+        if($valid['status'] === "success") {
+            // eksekusi query
+            $sql = "SELECT email FROM users WHERE email = '$email' LIMIT 1";
+
+            // cek email terdaftar atau tidak
+            if($conn->query($sql)->num_rows == 1){
+                $response = array("status"=>"success", "message"=>"Email tersebut terdaftar");
+            }else{
+                $response = array("status"=>"error", "message"=>"Email tersebut tidak terdaftar");
+            }
         }else{
-            $response = array("status"=>"error", "message"=>"Email tersebut tidak terdaftar");
+            $response = $valid;
         }
 
         // close koneksi
@@ -30,4 +40,3 @@ header("Content-Type: application/json");
 
     // show response
     echo json_encode($response);
-?>
