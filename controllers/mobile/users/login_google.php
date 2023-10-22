@@ -1,17 +1,26 @@
 <?php
+
 /**
  * Digunakan untuk login dengan google.
  */
 
- require "../../koneksi.php";
+require "../../koneksi.php";
+require "Validator.php";
 
 header("Content-Type: application/json");
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-        // post request
-        $email = $_POST['email'];
+    // post request
+    $email = $_POST['email'];
 
+    // cek validasi data
+    $validator = new Validator();
+    $validEmail = $validator->isValidEmail($email);
+
+    if ($validEmail['status'] === "error") {
+        $response = $validEmail;
+    } else {
         // get data user
         $sql = "SELECT * FROM users WHERE email = '$email' LIMIT 1";
         $result = $conn->query($sql);
@@ -26,10 +35,10 @@ header("Content-Type: application/json");
 
         // close koneksi
         $conn->close();
-    }else{
-        $response = array("status"=>"error", "message"=>"not post method");
     }
+} else {
+    $response = array("status" => "error", "message" => "not post method");
+}
 
-    // show response
-    echo json_encode($response);
-?>
+// show response
+echo json_encode($response);
