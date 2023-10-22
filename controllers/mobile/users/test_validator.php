@@ -13,7 +13,7 @@ header("Content-Type: application/json");
         $val = new Validator();
 
         echo "username";
-        $val->isValidUsername($username);
+        echo json_encode($val->isValidUsername($username));
         echo "\n\n";
         echo "email";
         $val->isValidEmail($email);
