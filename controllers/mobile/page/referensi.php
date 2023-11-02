@@ -1,0 +1,263 @@
+<?php
+require "../../koneksi.php";
+
+header("Content-Type: application/json");
+
+
+function createQueryForVenue($operasional, $sewa, $slot, $where, $order, $limit){
+
+    $qOperasionalData = '';
+    $qOperasionalJoin = '';
+    if($operasional === true){
+        $qOperasionalData = "
+            IFNULL(o.opened, '-') AS jam_buka, 
+            IFNULL(o.closed, '-') AS jam_tutup,
+        ";
+        $qOperasionalJoin = "
+            LEFT JOIN venue_operasional AS o 
+            ON v.id_venue = o.id_venue";
+    }
+
+    $qHargaSewaData = '';
+    $qHargaSewaJoin = '';
+    if($sewa === true){
+        $qHargaSewaData = "
+            , IFNULL(
+                MIN(p.price), 0
+            ) AS harga_sewa
+        ";
+        $qHargaSewaJoin = "
+            LEFT JOIN venue_price AS p
+            ON v.id_venue = p.id_venue
+        ";
+    }
+
+    $qBookingData = '';
+    $qBookingJoin = '';
+    if($slot === true){
+        $qBookingJoin = "
+            LEFT JOIN venue_booking AS b 
+            ON v.id_venue = b.id_venue
+            LEFT JOIN venue_booking_detail AS bd 
+            ON b.id_booking = bd.id_booking
+        ";
+    }
+
+
+    return "SELECT 
+        v.id_venue, v.venue_name, v.venue_photo, v.sport, v.status, v.coordinate,
+        $qOperasionalData
+        IFNULL(
+            COUNT(r.id_review), 0
+        ) AS total_review,
+        IFNULL(
+            ROUND(SUM(r.rating) / COUNT(r.id_review), 1), 0
+        ) AS rating,
+        v.price AS harga 
+        $qHargaSewaData
+        $qBookingData
+        FROM venues AS v 
+        LEFT JOIN venue_review AS r 
+        ON v.id_venue = r.id_venue 
+        $qHargaSewaJoin 
+        $qOperasionalJoin
+        $qBookingJoin
+        $where 
+        GROUP BY v.id_venue
+        $order
+        LIMIT $limit
+    ";
+}
+
+function fetchVenueRatting($conn, $limit)
+{
+    $sql = createQueryForVenue(
+        true, true, false,
+        "", 
+        "ORDER BY rating DESC, total_review DESC",
+        $limit
+    );
+
+    $result = $conn->query($sql);
+
+    if ($result) {
+        $data = $result->fetch_all(MYSQLI_ASSOC);
+        if (!empty($data)) {
+            return array("status" => "success", "message" => "Data berhasil didapatkan", "data" => $data);
+        } else {
+            return array("status" => "error", "message" => "Data tidak ditemukan");
+        }
+    } else {
+        return array("status" => "error", "message" => "Perintah gagal dijalankan" . $conn->error);
+    }
+}
+
+function fetchVenueLokasi($conn, $limit)
+{
+    $sql = createQueryForVenue(
+        false, false, false,
+        "", 
+        "ORDER BY rating DESC, total_review DESC",
+        $limit
+    );
+
+    $result = $conn->query($sql);
+
+    if ($result) {
+        $data = $result->fetch_all(MYSQLI_ASSOC);
+        if (!empty($data)) {
+            return array("status" => "success", "message" => "Data berhasil didapatkan", "data" => $data);
+        } else {
+            return array("status" => "error", "message" => "Data tidak ditemukan");
+        }
+    } else {
+        return array("status" => "error", "message" => "Perintah gagal dijalankan" . $conn->error);
+    }
+}
+
+function fetchVenueKosong($conn, $limit)
+{
+    $sql = createQueryForVenue(
+        true, true, true,
+        "WHERE v.status = 'Disewakan'", 
+        "ORDER BY rating DESC, total_review DESC",
+        $limit
+    );
+
+    $result = $conn->query($sql);
+
+    if ($result) {
+        $data = $result->fetch_all(MYSQLI_ASSOC);
+        if (!empty($data)) {
+            return array("status" => "success", "message" => "Data berhasil didapatkan", "data" => $data);
+        } else {
+            return array("status" => "error", "message" => "Data tidak ditemukan");
+        }
+    } else {
+        return array("status" => "error", "message" => "Perintah gagal dijalankan" . $conn->error);
+    }
+}
+
+function fetchVenueGratis($conn, $limit){
+
+    $sql = createQueryForVenue(
+        true, false, false,
+        "WHERE v.status = 'Gratis'",
+        "ORDER BY rating DESC, total_review DESC ",
+        $limit
+    );
+    
+    $result = $conn->query($sql);
+
+    if ($result) {
+        $data = $result->fetch_all(MYSQLI_ASSOC);
+        if (!empty($data)) {
+            return array("status" => "success", "message" => "Data berhasil didapatkan", "data" => $data);
+        } else {
+            return array("status" => "error", "message" => "Data tidak ditemukan");
+        }
+    } else {
+        return array("status" => "error", "message" => "Perintah gagal dijalankan" . $conn->error);
+    }
+}
+
+function fetchVenueBerbayar($conn, $limit){
+
+    $sql = createQueryForVenue(
+        true, false, false,
+        "WHERE v.status = 'Berbayar'",
+        "ORDER BY rating DESC, total_review DESC, v.price ASC",
+        $limit
+    );
+    
+    $result = $conn->query($sql);
+
+    if ($result) {
+        $data = $result->fetch_all(MYSQLI_ASSOC);
+        if (!empty($data)) {
+            return array("status" => "success", "message" => "Data berhasil didapatkan", "data" => $data);
+        } else {
+            return array("status" => "error", "message" => "Data tidak ditemukan");
+        }
+    } else {
+        return array("status" => "error", "message" => "Perintah gagal dijalankan" . $conn->error);
+    }
+}
+
+function fetchVenueDisewakan($conn, $limit){
+
+    $sql = createQueryForVenue(
+        true, true, true,
+        "WHERE v.status = 'Disewakan'",
+        "ORDER BY rating DESC, total_review DESC, v.price ASC",
+        $limit
+    );
+    
+    $result = $conn->query($sql);
+
+    if ($result) {
+        $data = $result->fetch_all(MYSQLI_ASSOC);
+        if (!empty($data)) {
+            return array("status" => "success", "message" => "Data berhasil didapatkan", "data" => $data);
+        } else {
+            return array("status" => "error", "message" => "Data tidak ditemukan");
+        }
+    } else {
+        return array("status" => "error", "message" => "Perintah gagal dijalankan" . $conn->error);
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+
+    $limit = 5;
+
+    // get data dashboard
+    $venueRatting = fetchVenueRatting($conn, $limit);
+    $venueLokasi = fetchVenueLokasi($conn, $limit);
+    $venueKosong = fetchVenueKosong($conn, $limit);
+    $venueGratis = fetchVenueGratis($conn, $limit);
+    $venueBerbayar = fetchVenueBerbayar($conn, $limit);
+    $venueDisewakan = fetchVenueDisewakan($conn, $limit);
+
+    if ($venueRatting['status'] == 'error'){
+        $venueRatting = array("data"=>[]);
+    }
+
+    if ($venueLokasi['status'] == 'error'){
+        $venueLokasi = array("data"=>[]);
+    }
+
+    if ($venueKosong['status'] == 'error'){
+        $venueKosong = array("data"=>[]);
+    }
+
+    if ($venueGratis["status"] == "error"){
+        $venueGratis = array("data"=>[]);
+    }
+
+    if ($venueBerbayar["status"] == "error"){
+        $venueBerbayar = array("data"=>[]);
+    }
+
+    if ($venueDisewakan["status"] == "error"){
+        $venueDisewakan = array("data"=>[]);
+    }
+
+    // menyimpan data dashboard
+    $data = array(
+        "top_ratting" => $venueRatting['data'],
+        "venue_lokasi" => $venueLokasi["data"],
+        "venue_kosong" => $venueKosong["data"],
+        "venue_gratis" => $venueGratis['data'],
+        "venue_berbayar" => $venueBerbayar["data"],
+        "venue_disewakan"=> $venueDisewakan["data"],
+    );
+
+    $response = array("status" => "success", "message" => "Data beranda sukses didapatkan", "data" => $data);
+} else {
+    $response = array("status" => "error", "message" => "not get method");
+}
+
+echo json_encode($response);
+
+?>
