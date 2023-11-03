@@ -3,9 +3,9 @@ require "../../koneksi.php";
 
 header("Content-Type: application/json");
 
+function createQueryForVenue($operasional, $sewa, $where, $order, $limit){
 
-function createQueryForVenue($operasional, $sewa, $slot, $where, $order, $limit){
-
+    // query dengan jam operasional
     $qOperasionalData = '';
     $qOperasionalJoin = '';
     if($operasional === true){
@@ -18,6 +18,7 @@ function createQueryForVenue($operasional, $sewa, $slot, $where, $order, $limit)
             ON v.id_venue = o.id_venue";
     }
 
+    // query dengan harga sewa
     $qHargaSewaData = '';
     $qHargaSewaJoin = '';
     if($sewa === true){
@@ -32,18 +33,7 @@ function createQueryForVenue($operasional, $sewa, $slot, $where, $order, $limit)
         ";
     }
 
-    $qBookingData = '';
-    $qBookingJoin = '';
-    if($slot === true){
-        $qBookingJoin = "
-            LEFT JOIN venue_booking AS b 
-            ON v.id_venue = b.id_venue
-            LEFT JOIN venue_booking_detail AS bd 
-            ON b.id_booking = bd.id_booking
-        ";
-    }
-
-
+    // buat query
     return "SELECT 
         v.id_venue, v.venue_name, v.venue_photo, v.sport, v.status, v.coordinate,
         $qOperasionalData
@@ -55,13 +45,11 @@ function createQueryForVenue($operasional, $sewa, $slot, $where, $order, $limit)
         ) AS rating,
         v.price AS harga 
         $qHargaSewaData
-        $qBookingData
         FROM venues AS v 
         LEFT JOIN venue_review AS r 
         ON v.id_venue = r.id_venue 
         $qHargaSewaJoin 
         $qOperasionalJoin
-        $qBookingJoin
         $where 
         GROUP BY v.id_venue
         $order
@@ -69,14 +57,19 @@ function createQueryForVenue($operasional, $sewa, $slot, $where, $order, $limit)
     ";
 }
 
+/**
+ * get venue by top ratting
+ */
 function fetchVenueRatting($conn, $limit)
 {
     $sql = createQueryForVenue(
-        true, true, false,
+        true, true,
         "", 
         "ORDER BY rating DESC, total_review DESC",
         $limit
     );
+
+    // echo $sql;
 
     $result = $conn->query($sql);
 
@@ -92,10 +85,13 @@ function fetchVenueRatting($conn, $limit)
     }
 }
 
+/**
+ * get venue by location
+ */
 function fetchVenueLokasi($conn, $limit)
 {
     $sql = createQueryForVenue(
-        false, false, false,
+        false, false, 
         "", 
         "ORDER BY rating DESC, total_review DESC",
         $limit
@@ -115,10 +111,13 @@ function fetchVenueLokasi($conn, $limit)
     }
 }
 
+/**
+ * get venue by venue kosong
+ */
 function fetchVenueKosong($conn, $limit)
 {
     $sql = createQueryForVenue(
-        true, true, true,
+        true, true, 
         "WHERE v.status = 'Disewakan'", 
         "ORDER BY rating DESC, total_review DESC",
         $limit
@@ -138,10 +137,13 @@ function fetchVenueKosong($conn, $limit)
     }
 }
 
+/**
+ * get venue by venue 'gratis'
+ */
 function fetchVenueGratis($conn, $limit){
 
     $sql = createQueryForVenue(
-        true, false, false,
+        true, false, 
         "WHERE v.status = 'Gratis'",
         "ORDER BY rating DESC, total_review DESC ",
         $limit
@@ -161,10 +163,13 @@ function fetchVenueGratis($conn, $limit){
     }
 }
 
+/**
+ * get venue by top status 'berbayar'
+ */
 function fetchVenueBerbayar($conn, $limit){
 
     $sql = createQueryForVenue(
-        true, false, false,
+        true, false, 
         "WHERE v.status = 'Berbayar'",
         "ORDER BY rating DESC, total_review DESC, v.price ASC",
         $limit
@@ -184,10 +189,13 @@ function fetchVenueBerbayar($conn, $limit){
     }
 }
 
+/**
+ * get venue by venue 'disewakan'
+ */
 function fetchVenueDisewakan($conn, $limit){
 
     $sql = createQueryForVenue(
-        true, true, true,
+        true, true, 
         "WHERE v.status = 'Disewakan'",
         "ORDER BY rating DESC, total_review DESC, v.price ASC",
         $limit
@@ -207,6 +215,11 @@ function fetchVenueDisewakan($conn, $limit){
     }
 }
 
+function searchByName($conn, $limit) {
+
+    $sql = "SELECT ";;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     $limit = 5;
@@ -219,6 +232,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $venueBerbayar = fetchVenueBerbayar($conn, $limit);
     $venueDisewakan = fetchVenueDisewakan($conn, $limit);
 
+    // cek apakah data status venue error atau tidak
     if ($venueRatting['status'] == 'error'){
         $venueRatting = array("data"=>[]);
     }
@@ -243,7 +257,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $venueDisewakan = array("data"=>[]);
     }
 
-    // menyimpan data dashboard
+    // menyimpan data halaman referensi mobile
     $data = array(
         "top_ratting" => $venueRatting['data'],
         "venue_lokasi" => $venueLokasi["data"],
@@ -253,6 +267,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         "venue_disewakan"=> $venueDisewakan["data"],
     );
 
+    // response sukses
     $response = array("status" => "success", "message" => "Data beranda sukses didapatkan", "data" => $data);
 } else {
     $response = array("status" => "error", "message" => "not get method");

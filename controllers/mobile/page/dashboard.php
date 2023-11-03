@@ -68,6 +68,9 @@ function fetchRekomendasi($conn, $limit)
         GROUP BY v.id_venue 
         LIMIT $limit
     ";
+
+    // echo $sql;
+
     $result = $conn->query($sql);
 
     if ($result) {
@@ -89,7 +92,7 @@ function fetchLokasi($conn, $limit)
         v.price AS harga,
         IFNULL(
             COUNT(r.id_review), 0
-        ) AS total_ulasan,
+        ) AS total_review,
         IFNULL(
             (SUM(r.rating) / COUNT(r.id_review)), 0
         ) AS rating,
