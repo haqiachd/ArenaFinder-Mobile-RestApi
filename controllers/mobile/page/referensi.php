@@ -63,9 +63,9 @@ function createQueryForVenue($operasional, $sewa, $where, $order, $limit){
 function fetchVenueRatting($conn, $limit)
 {
     $sql = createQueryForVenue(
-        true, true,
+        false, false,
         "", 
-        "ORDER BY rating DESC, total_review DESC",
+        "ORDER BY r.rating DESC, total_review DESC",
         $limit
     );
 

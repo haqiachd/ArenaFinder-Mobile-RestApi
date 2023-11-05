@@ -4,6 +4,7 @@ require "../../../../koneksi.php";
 
 header('Content-Type: application/json');
 if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+    
     $rawData = file_get_contents("php://input");
     $response = array();
 
@@ -52,9 +53,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     // echo $sql;
     $result = mysqli_query($conn, $sql);
     if($result == true) {
-        $response = array("status" => "success", "message"=> "review berhasil diupdate");
+        $response = array("status" => "success", "message"=> "Ulasan berhasil diupdate");
     }else{
-        $response = array("status"=> "error","message"=> "review gagal diupdate");
+        $response = array("status"=> "error","message"=> "Ulasan gagal diupdate");
     }
 
 } else {
