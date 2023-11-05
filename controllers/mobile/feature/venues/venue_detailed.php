@@ -136,7 +136,8 @@ function fetchVenueRatting($conn, $idVenue)
 
 function fetchVenueComment($conn, $idVenue)
 {
-    $sql = "SELECT r.id_review, u.username, r.rating, u.full_name, r.comment, DATE(r.date) AS date
+    $sql = "SELECT r.id_review, u.username, u.full_name, r.rating, u.user_photo,
+    DATE(r.date) AS date, r.comment
     FROM venue_review AS r 
     LEFT JOIN users AS u 
     ON r.id_users = u.id_users 
@@ -160,16 +161,16 @@ function fetchVenueComment($conn, $idVenue)
 
 function fetchVenueContact($conn, $idVenue)
 {
-    $sql = "SELECT u.id_users, u.username, u.full_name, u.user_photo, v.no_hp FROM venues AS v 
+    $sql = "SELECT u.id_users, u.full_name, u.user_photo, v.no_hp FROM venues AS v 
     LEFT JOIN users AS u 
-    ON u.email = u.email
+    ON u.email = v.email
     WHERE id_venue = $idVenue
     GROUP BY no_hp";
 
     $result = $conn->query($sql);
 
     if ($result) {
-        $data = $result->fetch_assoc();
+        $data = $result->fetch_all(MYSQLI_ASSOC);
         if (!empty($data)) {
             return array("status" => "success", "message" => "Data berhasil didapatkan", "data" => $data);
         } else {
@@ -182,11 +183,11 @@ function fetchVenueContact($conn, $idVenue)
 
 function fetchVenuePhoto($conn, $idVenue)
 {
-    $sql = "SELECT CONCAT('venues/', venue_photo) AS photo FROM venues WHERE id_venue = 1
+    $sql = "SELECT CONCAT('venues/', venue_photo) AS photo FROM venues WHERE id_venue = $idVenue
         UNION 
-            SELECT CONCAT('aktivitas/', photo) AS photo  FROM venue_aktivitas WHERE id_venue = 1
+            SELECT CONCAT('aktivitas/', photo) AS photo  FROM venue_aktivitas WHERE id_venue = $idVenue
         UNION 
-            SELECT CONCAT('fasilitas/', fasilitas_photo)  AS photo FROM venue_fasilitas WHERE id_venue = 1
+            SELECT CONCAT('fasilitas/', fasilitas_photo)  AS photo FROM venue_fasilitas WHERE id_venue = $idVenue
     ";
 
     $result = $conn->query($sql);
@@ -211,10 +212,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $sql = "SELECT id_venue FROM venues WHERE id_venue = $idVenue";
 
     if ($conn->query($sql)->num_rows != 1) {
-        $response = array("status" => "error", "message" => "Id venue tidak ditemukan!");
+        $response = array("status" => "error", "message" => "Id $idVenue venue tidak ditemukan!");
     } else {
 
-        $sql = "UPDATE venues SET views = (views + 1) WHERE id_venue = 1;";
+        // update views
+        $sql = "UPDATE venues SET views = (views + 1) WHERE id_venue = $idVenue;";
         $conn->query($sql);
 
         $venueData = fetchVenueData($conn, $idVenue);
@@ -230,7 +232,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
 
         if ($venOperasional["status"] == "error") {
-            $venOperasional = array("data" => []);
+            $tutup = ["opened"=>"tutup", "closed"=>"tutup"];
+            $jam = array(
+                "Senin" => $tutup, "Selasa" => $tutup, "Rabu" => $tutup,
+                "Kamis" => $tutup, "Jumat" => $tutup, "Sabtu" => $tutup,
+                "Minggu" => $tutup
+            );
+            $venOperasional = array("data" => $jam);
         }
 
         if ($venContact["status"] == "error") {
@@ -264,10 +272,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         );
 
         // response sukses
-        $response = array("status" => "success", "message" => "Data beranda sukses didapatkan", "data" => $data);
+        $response = array("status" => "success", "message" => "Data venue sukses didapatkan", "data" => $data);
     }
 } else {
-    $response = array("status" => "error", "message" => "not get method");
+    $response = array("status" => "error", "message" => "not put method");
 }
 
 echo json_encode($response);
