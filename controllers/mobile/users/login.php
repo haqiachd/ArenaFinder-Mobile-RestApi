@@ -14,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // post request
     $userid = $_POST['userid'];
     $password = $_POST['password'];
+    $deviceToken = $_POST['device_token'];
 
     // cek validasi data
     $validator = new Validator();
@@ -23,9 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (strlen($userid) < 4 || strlen($userid) > 100) {
         $response = array('status' => 'error', 'message' => 'Email atau username tidak valid');
-    }else if($validPass["status"] === "error"){
+    } else if ($validPass["status"] === "error") {
         $response = $validPass;
-    }else {
+    } else {
         // get data user
         $sql = "SELECT * FROM users WHERE email = '$userid' OR username = '$userid' LIMIT 1";
         $result = $conn->query($sql);
@@ -35,7 +36,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = $result->fetch_assoc(); // get user data
             // jika password match
             if (password_verify($password, $user['password'])) {
-                $response = array('status' => 'success', 'message' => 'Login berhasil', 'data' => $user);
+                // save login data
+                $sql = "INSERT INTO session (`email`, `device`, `device_token`) 
+                    VALUES ('" . $user['email'] . "', 'Mobile', '$deviceToken'
+                );";
+                // cek 
+                if ($conn->query($sql)) {
+                    $response = array('status' => 'success', 'message' => 'Login berhasil', 'data' => $user);
+                } else {
+                    $response = array('status' => 'error', 'message' => 'Data login gagal disimpan');
+                }
             } else {
                 // Kata sandi salah
                 $response = array('status' => 'error', 'message' => 'Kata sandi salah');
@@ -53,3 +63,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // show response
 echo json_encode($response);
+
+// https://firebase.google.com/docs/android/setup
