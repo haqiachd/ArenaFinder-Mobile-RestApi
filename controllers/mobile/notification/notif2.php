@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Data Notifikasi
     $notification = [
-        'title' => 'Judul Notifikasi',
+        'title' => 'Hello World',
         'body' => 'Isi Notifikasi'
     ];
 
