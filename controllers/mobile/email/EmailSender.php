@@ -5,7 +5,8 @@ use PHPMailer\PHPMailer\Exception;
 class EmailSender {
     private $smtpHost = 'smtp.gmail.com';
     private $smtpUsername = 'arenafinder.app@gmail.com';
-    private $smtpPassword = 'hftf uheb ztey nokf';
+    // private $smtpPassword = 'hftf uheb ztey nokf';
+    private $smtpPassword = 'dnea fcjr dibw iham';
     private $smtpPort = 587;
     private $fromEmail = 'arenafinder.app@gmail.com';
     private $fromName = 'ArenaFinder Dev';
