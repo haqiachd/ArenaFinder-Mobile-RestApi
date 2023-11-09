@@ -34,6 +34,12 @@ Thumbs.db
 
 # Ignore user uploads
 /public/img/
+/public/sound/
+
+/private
+
+#TEMP
+/controllers/mobile/notification/
 
 # Ignore IDE-specific files and directories
 /.idea/
