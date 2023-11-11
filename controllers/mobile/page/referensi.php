@@ -65,7 +65,7 @@ function fetchVenueRatting($conn, $limit)
     $sql = createQueryForVenue(
         false, false,
         "", 
-        "ORDER BY r.rating DESC, total_review DESC",
+        "ORDER BY rating DESC, total_review DESC",
         $limit
     );
 
