@@ -1,17 +1,15 @@
 <?php
 
-require "../../../koneksi.php";
-require "../../feature/venues/Venue.php";
+require "../../../../koneksi.php";
+require "../../../feature/venues/Venue.php";
 
 header("Content-Type: application/json");
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
-    $sport = $_GET['sport'];
-
     $venue = new Venue();
 
-    $vSport = $venue->fetchVenueSport($conn, "Sepak Bola", 30);
+    $vSport = $venue->fetchVenueKosong($conn, 30);
 
     if ($vSport['status'] == 'error') {
         $vSport["data"] = [];
