@@ -1,6 +1,6 @@
 <?php
 
-require "../../../koneksi.php";
+require "../../../../koneksi.php";
 
 class Venue{
 
@@ -57,6 +57,42 @@ class Venue{
             LIMIT $limit
         ";
     }
+
+    function fetchVenueSearch($conn, $limit, $name)
+    {
+        $sql = $this->createQueryForVenue(
+            true, true, 
+            "WHERE v.venue_name LIKE '%$name%' ", 
+            "ORDER BY v.id_venue DESC",
+            $limit
+        );
+
+        return $this->checkResult($conn->query($sql));
+    }
+
+    function fetchVenueBaru($conn, $limit)
+    {
+        $sql = $this->createQueryForVenue(
+            true, true, 
+            "", 
+            "ORDER BY v.id_venue DESC",
+            $limit
+        );
+
+        return $this->checkResult($conn->query($sql));
+    }
+
+    function fetchVenueRekomendasi($conn, $limit)
+    {
+        $sql = $this->createQueryForVenue(
+            true, true, 
+            "", 
+            "",
+            $limit
+        );
+
+        return $this->checkResult($conn->query($sql));
+    }
     
     /**
      * get venue by top ratting
@@ -66,24 +102,11 @@ class Venue{
         $sql = $this->createQueryForVenue(
             false, false,
             "", 
-            "ORDER BY r.rating DESC, total_review DESC",
+            "ORDER BY rating DESC, total_review DESC",
             $limit
         );
     
-        // echo $sql;
-    
-        $result = $conn->query($sql);
-    
-        if ($result) {
-            $data = $result->fetch_all(MYSQLI_ASSOC);
-            if (!empty($data)) {
-                return array("status" => "success", "message" => "Data berhasil didapatkan", "data" => $data);
-            } else {
-                return array("status" => "error", "message" => "Data tidak ditemukan");
-            }
-        } else {
-            return array("status" => "error", "message" => "Perintah gagal dijalankan" . $conn->error);
-        }
+        return $this->checkResult($conn->query($sql));
     }
     
     /**
@@ -91,25 +114,14 @@ class Venue{
      */
     function fetchVenueLokasi($conn, $limit)
     {
-        $sql = createQueryForVenue(
+        $sql = $this->createQueryForVenue(
             false, false, 
             "", 
             "ORDER BY rating DESC, total_review DESC",
             $limit
         );
-    
-        $result = $conn->query($sql);
-    
-        if ($result) {
-            $data = $result->fetch_all(MYSQLI_ASSOC);
-            if (!empty($data)) {
-                return array("status" => "success", "message" => "Data berhasil didapatkan", "data" => $data);
-            } else {
-                return array("status" => "error", "message" => "Data tidak ditemukan");
-            }
-        } else {
-            return array("status" => "error", "message" => "Perintah gagal dijalankan" . $conn->error);
-        }
+
+        return $this->checkResult($conn->query($sql));
     }
     
     /**
@@ -117,51 +129,30 @@ class Venue{
      */
     function fetchVenueKosong($conn, $limit)
     {
-        $sql = createQueryForVenue(
+        $sql = $this->createQueryForVenue(
             true, true, 
             "WHERE v.status = 'Disewakan'", 
             "ORDER BY rating DESC, total_review DESC",
             $limit
         );
-    
-        $result = $conn->query($sql);
-    
-        if ($result) {
-            $data = $result->fetch_all(MYSQLI_ASSOC);
-            if (!empty($data)) {
-                return array("status" => "success", "message" => "Data berhasil didapatkan", "data" => $data);
-            } else {
-                return array("status" => "error", "message" => "Data tidak ditemukan");
-            }
-        } else {
-            return array("status" => "error", "message" => "Perintah gagal dijalankan" . $conn->error);
-        }
+
+        return $this->checkResult($conn->query($sql));
     }
-    
+
+
     /**
      * get venue by venue 'gratis'
      */
     function fetchVenueGratis($conn, $limit){
     
-        $sql = createQueryForVenue(
+        $sql = $this->createQueryForVenue(
             true, false, 
             "WHERE v.status = 'Gratis'",
             "ORDER BY rating DESC, total_review DESC ",
             $limit
         );
         
-        $result = $conn->query($sql);
-    
-        if ($result) {
-            $data = $result->fetch_all(MYSQLI_ASSOC);
-            if (!empty($data)) {
-                return array("status" => "success", "message" => "Data berhasil didapatkan", "data" => $data);
-            } else {
-                return array("status" => "error", "message" => "Data tidak ditemukan");
-            }
-        } else {
-            return array("status" => "error", "message" => "Perintah gagal dijalankan" . $conn->error);
-        }
+       return $this->checkResult($conn->query($sql));
     }
     
     /**
@@ -169,25 +160,14 @@ class Venue{
      */
     function fetchVenueBerbayar($conn, $limit){
     
-        $sql = createQueryForVenue(
+        $sql = $this->createQueryForVenue(
             true, false, 
             "WHERE v.status = 'Berbayar'",
             "ORDER BY rating DESC, total_review DESC, v.price ASC",
             $limit
         );
         
-        $result = $conn->query($sql);
-    
-        if ($result) {
-            $data = $result->fetch_all(MYSQLI_ASSOC);
-            if (!empty($data)) {
-                return array("status" => "success", "message" => "Data berhasil didapatkan", "data" => $data);
-            } else {
-                return array("status" => "error", "message" => "Data tidak ditemukan");
-            }
-        } else {
-            return array("status" => "error", "message" => "Perintah gagal dijalankan" . $conn->error);
-        }
+        return $this->checkResult($conn->query($sql));
     }
     
     /**
@@ -195,25 +175,14 @@ class Venue{
      */
     function fetchVenueDisewakan($conn, $limit){
     
-        $sql = createQueryForVenue(
+        $sql = $this->createQueryForVenue(
             true, true, 
             "WHERE v.status = 'Disewakan'",
             "ORDER BY rating DESC, total_review DESC, v.price ASC",
             $limit
         );
         
-        $result = $conn->query($sql);
-    
-        if ($result) {
-            $data = $result->fetch_all(MYSQLI_ASSOC);
-            if (!empty($data)) {
-                return array("status" => "success", "message" => "Data berhasil didapatkan", "data" => $data);
-            } else {
-                return array("status" => "error", "message" => "Data tidak ditemukan");
-            }
-        } else {
-            return array("status" => "error", "message" => "Perintah gagal dijalankan" . $conn->error);
-        }
+        return $this->checkResult($conn->query($sql));
     }
 
     function checkResult($result){
@@ -225,7 +194,7 @@ class Venue{
                 return array("status" => "error", "message" => "Data tidak ditemukan");
             }
         } else {
-            return array("status" => "error", "message" => "Perintah gagal dijalankan" . $conn->error);
+            return array("status" => "error", "message" => "Perintah gagal dijalankan");
         }
     }
 
@@ -242,6 +211,7 @@ class Venue{
         return $this->checkResult($conn->query($sql));
 
     }
+    
     
 
 }
