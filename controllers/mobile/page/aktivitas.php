@@ -6,7 +6,7 @@ header("Content-Type: application/json");
 function createQueryForAktivitas($where, $order, $limit){
     return "SELECT 
             a.id_aktvitias, a.nama_aktivitas, v.venue_name, a.date, a.photo, a.max_member,
-            a.start_hour, a.end_hour, a.price,
+            a.jam_main, a.price,
         IFNULL(
             SUM(am.id_member), 0
         ) AS jumlah_member 
