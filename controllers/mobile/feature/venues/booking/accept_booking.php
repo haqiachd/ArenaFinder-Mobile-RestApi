@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $idVenue = $_POST['id_booking'];
     $email = $_POST['email'];
 
-    $sql = "UPDATE venue_booking SET payment_status = 'Successed' WHERE id_booking = $idVenue";
+    $sql = "UPDATE venue_booking SET payment_status = 'Accepted' WHERE id_booking = $idVenue";
 
     $result = mysqli_query($conn, $sql);
 
