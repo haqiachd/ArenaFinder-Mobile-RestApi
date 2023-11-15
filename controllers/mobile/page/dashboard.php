@@ -124,16 +124,16 @@ function fetchLokasi($conn, $limit)
 function fetchAktivitas($conn, $limit)
 {
     $sql = "SELECT 
-            a.id_aktvitias, a.nama_aktivitas, v.venue_name, a.date, a.photo, a.max_member,
+            a.id_aktivitas, a.nama_aktivitas, v.venue_name, a.date, a.photo, a.max_member,
         IFNULL(
-            SUM(am.id_member), 0
+            COUNT(am.id_aktivitas), 0
         ) AS jumlah_member 
         FROM venue_aktivitas AS a 
         LEFT JOIN venues AS v 
         ON a.id_venue = v.id_venue
         LEFT JOIN venue_aktivitas_member AS am 
-        ON a.id_aktvitias = am.id_aktivitas 
-        GROUP BY a.id_aktvitias
+        ON a.id_aktivitas = am.id_aktivitas 
+        GROUP BY a.id_aktivitas
         HAVING a.date >= NOW() AND jumlah_member < a.max_member
         ORDER BY a.date ASC 
         LIMIT $limit

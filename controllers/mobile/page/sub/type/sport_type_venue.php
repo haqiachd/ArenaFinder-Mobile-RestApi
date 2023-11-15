@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     $venue = new Venue();
 
-    $vSport = $venue->fetchVenueSport($conn, "Sepak Bola", 30);
+    $vSport = $venue->fetchVenueSport($conn, $sport, 30);
 
     if ($vSport['status'] == 'error') {
         $vSport["data"] = [];

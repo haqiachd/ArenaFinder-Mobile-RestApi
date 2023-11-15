@@ -5,17 +5,17 @@ header("Content-Type: application/json");
 
 function createQueryForAktivitas($where, $order, $limit){
     return "SELECT 
-            a.id_aktvitias, a.nama_aktivitas, v.venue_name, a.date, a.photo, a.max_member,
+            a.id_aktivitas, a.nama_aktivitas, v.venue_name, a.date, a.photo, a.max_member,
             a.jam_main, a.price,
         IFNULL(
-            SUM(am.id_member), 0
+            COUNT(am.id_aktivitas), 0
         ) AS jumlah_member 
         FROM venue_aktivitas AS a 
         LEFT JOIN venues AS v 
         ON a.id_venue = v.id_venue
         LEFT JOIN venue_aktivitas_member AS am 
-        ON a.id_aktvitias = am.id_aktivitas 
-        GROUP BY a.id_aktvitias
+        ON a.id_aktivitas = am.id_aktivitas 
+        GROUP BY a.id_aktivitas
         $where
         $order
         LIMIT $limit
