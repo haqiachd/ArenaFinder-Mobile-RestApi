@@ -19,8 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         ON vb.id_venue = v.id_venue 
         JOIN venue_booking_detail AS vd 
         ON vb.id_booking = vd.id_booking 
-        WHERE vb.email = '$email' AND vb.payment_status = '$status'
+        WHERE vb.email = '$email' AND vb.payment_status = '$status' 
         GROUP BY vb.id_booking 
+        ORDER BY vb.created_at DESC 
         
     ";
 
